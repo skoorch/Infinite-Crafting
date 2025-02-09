@@ -1,0 +1,229 @@
+// Initial items that players start with
+const startingItems = ['Water', 'Fire', 'Earth', 'Air'];
+
+// Store discovered combinations
+const discoveredCombinations = new Map();
+const firstDiscoveries = new Map();
+
+// Sound effect
+const popSound = new Audio('/pop.wav');
+
+// Game state
+let inventory = new Set(startingItems);
+let selectedItems = [null, null];
+
+// DOM elements
+const inventoryEl = document.getElementById('inventory-items');
+const craftSlots = document.querySelectorAll('.craft-slot');
+const craftBtn = document.getElementById('craft-btn');
+const resultEl = document.getElementById('result');
+const loadingEl = document.getElementById('loading');
+
+// Load saved game state
+function loadGame() {
+  try {
+    // Load inventory
+    const savedInventory = localStorage.getItem('inventory');
+    if (savedInventory) {
+      inventory = new Set(JSON.parse(savedInventory));
+    }
+
+    // Load discovered combinations
+    const savedCombinations = localStorage.getItem('combinations');
+    if (savedCombinations) {
+      const combinationsArray = JSON.parse(savedCombinations);
+      combinationsArray.forEach(([key, value]) => {
+        discoveredCombinations.set(key, value);
+      });
+    }
+
+    // Load first discoveries
+    const savedDiscoveries = localStorage.getItem('firstDiscoveries');
+    if (savedDiscoveries) {
+      const discoveriesArray = JSON.parse(savedDiscoveries);
+      discoveriesArray.forEach(([key, value]) => {
+        firstDiscoveries.set(key, value);
+      });
+    }
+  } catch (error) {
+    console.error('Error loading game:', error);
+    // If loading fails, we'll keep the default starting state
+  }
+}
+
+// Save game state
+function saveGame() {
+  try {
+    // Save inventory
+    localStorage.setItem('inventory', JSON.stringify([...inventory]));
+
+    // Save combinations (convert Map to array for JSON storage)
+    const combinationsArray = Array.from(discoveredCombinations.entries());
+    localStorage.setItem('combinations', JSON.stringify(combinationsArray));
+
+    // Save first discoveries
+    const discoveriesArray = Array.from(firstDiscoveries.entries());
+    localStorage.setItem('firstDiscoveries', JSON.stringify(discoveriesArray));
+
+    // Show save indicator
+    const indicator = document.getElementById('save-indicator');
+    indicator.classList.add('show');
+    setTimeout(() => indicator.classList.remove('show'), 2000);
+  } catch (error) {
+    console.error('Error saving game:', error);
+  }
+}
+
+// Initialize game
+function init() {
+  loadGame();
+  renderInventory();
+  setupEventListeners();
+}
+
+function renderInventory() {
+  inventoryEl.innerHTML = '';
+  [...inventory].sort().forEach((item, index) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'item';
+    itemEl.style.opacity = '0';
+    itemEl.style.transform = 'translateY(10px)';
+    itemEl.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+    itemEl.textContent = item;
+    itemEl.addEventListener('click', () => selectItem(item));
+    inventoryEl.appendChild(itemEl);
+
+    // Trigger staggered animation
+    setTimeout(() => {
+      itemEl.style.opacity = '1';
+      itemEl.style.transform = 'translateY(0)';
+    }, index * 50);
+  });
+}
+
+function selectItem(item) {
+  const emptySlotIndex = selectedItems.findIndex(slot => slot === null);
+  if (emptySlotIndex !== -1) {
+    selectedItems[emptySlotIndex] = item;
+    updateCraftingSlots();
+  }
+}
+
+function updateCraftingSlots() {
+  craftSlots.forEach((slot, index) => {
+    slot.textContent = selectedItems[index] || '';
+    slot.className = `craft-slot ${selectedItems[index] ? 'filled' : ''}`;
+  });
+}
+
+function setupEventListeners() {
+  craftSlots.forEach(slot => {
+    slot.addEventListener('click', () => {
+      const index = parseInt(slot.dataset.slot);
+      selectedItems[index] = null;
+      updateCraftingSlots();
+    });
+  });
+
+  craftBtn.addEventListener('click', craftItems);
+
+  // Add auto-save when window loses focus or closes
+  window.addEventListener('blur', saveGame);
+  window.addEventListener('beforeunload', saveGame);
+}
+
+async function craftItems() {
+  if (!selectedItems[0] || !selectedItems[1]) {
+    resultEl.textContent = 'Select two items to craft!';
+    return;
+  }
+
+  const combination = [selectedItems[0], selectedItems[1]].sort().join(' + ');
+  
+  // Check if we already know this combination
+  if (discoveredCombinations.has(combination)) {
+    const result = discoveredCombinations.get(combination);
+    handleCraftingResult(result, false);
+    return;
+  }
+
+  // Ask AI for a new combination
+  loadingEl.style.display = 'flex';
+  try {
+    const result = await getAICombination(selectedItems[0], selectedItems[1]);
+    discoveredCombinations.set(combination, result);
+    
+    // Record first discovery
+    if (!firstDiscoveries.has(result)) {
+      firstDiscoveries.set(result, {
+        ingredients: combination,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    handleCraftingResult(result, true);
+    saveGame(); // Save after discovering new combination
+  } catch (error) {
+    resultEl.textContent = 'Crafting failed! Try again.';
+  } finally {
+    loadingEl.style.display = 'none';
+  }
+}
+
+function handleCraftingResult(result, isNewDiscovery) {
+  // Play sound effect
+  popSound.currentTime = 0;
+  popSound.play().catch(err => console.error('Error playing sound:', err));
+
+  let message = `You created: ${result}!`;
+  if (isNewDiscovery) {
+    const discoveryInfo = firstDiscoveries.get(result);
+    message += `\n🎉 First Discovery! Created from: ${discoveryInfo.ingredients}`;
+  }
+  
+  resultEl.innerHTML = message.replace('\n', '<br>');
+  resultEl.classList.add('pop');
+  setTimeout(() => resultEl.classList.remove('pop'), 300);
+  
+  inventory.add(result);
+  saveGame(); 
+  renderInventory();
+  selectedItems = [null, null];
+  updateCraftingSlots();
+}
+
+async function getAICombination(item1, item2) {
+  try {
+    const response = await fetch('/api/ai_completion', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: `Generate a creative and logical result of combining these two items in a crafting game. The result should be a single item or substance that could reasonably be created by combining the inputs. Keep the response concise - just the resulting item name.
+
+        interface Response {
+          result: string;
+        }
+        
+        {
+          "result": "Steam"
+        }
+        `,
+        data: {
+          item1,
+          item2
+        }
+      }),
+    });
+    const data = await response.json();
+    return data.result;
+  } catch (error) {
+    console.error('Error getting AI combination:', error);
+    throw error;
+  }
+}
+
+// Start the game
+init();
