@@ -12,6 +12,9 @@ const popSound = new Audio('/pop.wav');
 let inventory = new Set(startingItems);
 let selectedItems = [null, null];
 
+// Load the combinations data
+import { predefinedCombinations } from './combinations.js';
+
 // DOM elements
 const inventoryEl = document.getElementById('inventory-items');
 const craftSlots = document.querySelectorAll('.craft-slot');
@@ -147,10 +150,9 @@ async function craftItems() {
     return;
   }
 
-  // Ask AI for a new combination
-  loadingEl.style.display = 'flex';
-  try {
-    const result = await getAICombination(selectedItems[0], selectedItems[1]);
+  // Check predefined combinations
+  if (predefinedCombinations.has(combination)) {
+    const result = predefinedCombinations.get(combination);
     discoveredCombinations.set(combination, result);
     
     // Record first discovery
@@ -162,11 +164,13 @@ async function craftItems() {
     }
     
     handleCraftingResult(result, true);
-    saveGame(); // Save after discovering new combination
-  } catch (error) {
-    resultEl.textContent = 'Crafting failed! Try again.';
-  } finally {
-    loadingEl.style.display = 'none';
+    saveGame();
+  } else {
+    resultEl.textContent = 'These items cannot be combined!';
+    setTimeout(() => {
+      selectedItems = [null, null];
+      updateCraftingSlots();
+    }, 1500);
   }
 }
 
@@ -190,39 +194,6 @@ function handleCraftingResult(result, isNewDiscovery) {
   renderInventory();
   selectedItems = [null, null];
   updateCraftingSlots();
-}
-
-async function getAICombination(item1, item2) {
-  try {
-    const response = await fetch('/api/ai_completion', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: `Generate a creative and logical result of combining these two items in a crafting game. The result should be a single item or substance that could reasonably be created by combining the inputs. Keep the response concise - just the resulting item name.
-
-        interface Response {
-          result: string;
-        }
-        
-        {
-          "result": "Steam"
-        }
-        `,
-        data: {
-          item1,
-          item2
-        }
-      }),
-    });
-    const data = await response.json();
-    return data.result;
-  } catch (error) {
-    console.error('Error getting AI combination:', error);
-    throw error;
-  }
 }
 
 // Start the game
