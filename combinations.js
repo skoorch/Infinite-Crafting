@@ -365,7 +365,7 @@ export const predefinedCombinations = new Map([
   ['Grain + Tool', 'Farming'],
   ['Animal + Farm', 'Livestock'],
   ['Fruit + Sugar', 'Juice'],
-  ['Grain + Water', 'Beer'],
+  ['Grain + Water', 'Bread'],
   ['Milk + Bacteria', 'Cheese'],
   ['Meat + Fire', 'Cooking'],
   ['Plant + Selection', 'Domestication'],
@@ -385,69 +385,99 @@ export const predefinedCombinations = new Map([
   ['Space + Human', 'Astronaut'],
 ]);
 
-// Procedural combination generator
+// Enhanced procedural combination system
 const elementProperties = {
-  Water: ['wet', 'flowing', 'cold'],
-  Fire: ['hot', 'burning', 'energetic'],
-  Earth: ['solid', 'heavy', 'fertile'],
-  Air: ['light', 'gaseous', 'moving'],
-  // Add more base properties for other elements
+  Water: ['wet', 'flowing', 'cold', 'liquid', 'clear', 'reflective'],
+  Fire: ['hot', 'burning', 'energetic', 'bright', 'destructive', 'transformative'],
+  Earth: ['solid', 'heavy', 'fertile', 'stable', 'ancient', 'nurturing'],
+  Air: ['light', 'gaseous', 'moving', 'invisible', 'free', 'ethereal'],
+  Metal: ['conductive', 'strong', 'malleable', 'refined', 'pure', 'durable'],
+  Life: ['growing', 'adapting', 'evolving', 'conscious', 'organic', 'reproducing'],
+  Energy: ['powerful', 'dynamic', 'radiating', 'forceful', 'active', 'potent'],
+  Time: ['flowing', 'eternal', 'changing', 'continuous', 'cyclical', 'infinite'],
+  Space: ['vast', 'empty', 'dark', 'infinite', 'dimensional', 'cosmic'],
+  Light: ['bright', 'fast', 'warming', 'illuminating', 'revealing', 'energetic'],
 };
 
-const transformationRules = {
-  'wet + hot': 'Steam',
-  'wet + cold': 'Ice',
-  'hot + solid': 'Lava',
-  // Add more transformation rules
+// Extended prefix system for more variety
+const prefixCategories = {
+  power: ['Super', 'Hyper', 'Ultra', 'Mega', 'Giga', 'Quantum', 'Cosmic'],
+  quality: ['Mystic', 'Divine', 'Ancient', 'Eternal', 'Perfect', 'Ultimate'],
+  state: ['Enhanced', 'Empowered', 'Ascended', 'Transcendent', 'Evolved'],
+  element: ['Elemental', 'Primal', 'Fundamental', 'Essential', 'Core'],
+  magic: ['Arcane', 'Magical', 'Enchanted', 'Blessed', 'Sacred'],
+  tech: ['Cyber', 'Tech', 'Digital', 'Nano', 'Bio', 'Quantum'],
+  natural: ['Wild', 'Pure', 'Natural', 'Primal', 'Raw'],
+  cosmic: ['Astral', 'Celestial', 'Galactic', 'Solar', 'Lunar'],
 };
 
-// Hash function to consistently generate the same result for the same inputs
+const suffixCategories = {
+  form: ['Matter', 'Element', 'Substance', 'Material', 'Essence'],
+  power: ['Force', 'Energy', 'Power', 'Charge', 'Potential'],
+  object: ['Crystal', 'Stone', 'Artifact', 'Relic', 'Core'],
+  concept: ['Principle', 'Law', 'Theory', 'Concept', 'Truth'],
+  effect: ['Wave', 'Field', 'Pulse', 'Beam', 'Ray'],
+  state: ['Form', 'State', 'Phase', 'Condition', 'Mode'],
+};
+
+// Advanced combination patterns
+const combinationPatterns = [
+  (a, b, hash) => `${getPrefix(hash)} ${a}-${b} ${getSuffix(hash)}`,
+  (a, b, hash) => `${getPrefix(hash)} ${combineWords(a, b)}`,
+  (a, b, hash) => `${transformWord(a, hash)}-${transformWord(b, hash)}`,
+  (a, b, hash) => `${getElementalPrefix(hash)}${combineWords(a, b)} ${getSuffix(hash)}`,
+];
+
+// Helper functions for generating combinations
+function getPrefix(hash) {
+  const category = Object.values(prefixCategories)[hash % Object.keys(prefixCategories).length];
+  return category[hash % category.length];
+}
+
+function getSuffix(hash) {
+  const category = Object.values(suffixCategories)[hash % Object.keys(suffixCategories).length];
+  return category[hash % category.length];
+}
+
+function combineWords(a, b) {
+  return a.slice(0, Math.ceil(a.length/2)) + b.slice(Math.floor(b.length/2));
+}
+
+function transformWord(word, hash) {
+  const transforms = ['ion', 'ium', 'ite', 'um', 'us', 'ix', 'or'];
+  return word + transforms[hash % transforms.length];
+}
+
+function getElementalPrefix(hash) {
+  const prefixes = ['aero', 'hydro', 'pyro', 'geo', 'cryo', 'electro', 'bio'];
+  return prefixes[hash % prefixes.length];
+}
+
+// Advanced hash function for better distribution
 function hashCombination(a, b) {
-  const str = a + b;
   let hash = 0;
+  const str = a + b;
   for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
   return Math.abs(hash);
 }
 
-// Procedurally generate a result based on input elements
+// Main combination generator
 function generateCombination(elem1, elem2) {
-  // First check if it's in predefined combinations
-  const sortedCombo = [elem1, elem2].sort().join(' + ');
-  if (predefinedCombinations.has(sortedCombo)) {
-    return predefinedCombinations.get(sortedCombo);
-  }
-
-  // Use hash to consistently generate same result for same inputs
   const hash = hashCombination(elem1, elem2);
   
-  // Get properties of both elements
-  const props1 = elementProperties[elem1] || [];
-  const props2 = elementProperties[elem2] || [];
-
-  // Use hash to deterministically combine properties
-  const propIndex1 = hash % props1.length;
-  const propIndex2 = (hash >> 8) % props2.length;
-
-  const prop1 = props1[propIndex1] || elem1;
-  const prop2 = props2[propIndex2] || elem2;
-
-  // Check transformation rules
-  const transformKey = `${prop1} + ${prop2}`;
-  if (transformationRules[transformKey]) {
-    return transformationRules[transformKey];
-  }
-
-  // Generate a new combination name based on properties
-  const prefixes = ['Super', 'Mystic', 'Quantum', 'Cosmic', 'Ancient', 'Enhanced'];
-  const suffixes = ['Essence', 'Matter', 'Force', 'Element', 'Crystal', 'Energy'];
+  // Use hash to select pattern
+  const pattern = combinationPatterns[hash % combinationPatterns.length];
   
-  const prefixIndex = (hash >> 16) % prefixes.length;
-  const suffixIndex = (hash >> 24) % suffixes.length;
-
-  return `${prefixes[prefixIndex]} ${elem1}-${elem2} ${suffixes[suffixIndex]}`;
+  // Generate unique but consistent result
+  const result = pattern(elem1, elem2, hash);
+  
+  // Ensure result feels unique by adding numerical suffix if needed
+  const uniqueifier = (hash % 100000).toString().padStart(5, '0');
+  return `${result}-${uniqueifier}`;
 }
 
 // Export the combination checking function
