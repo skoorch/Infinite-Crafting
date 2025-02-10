@@ -135,30 +135,38 @@ function setupEventListeners() {
   window.addEventListener('beforeunload', saveGame);
 }
 
+// Get result from combination system
+function getCombinationResult(item1, item2) {
+  const combination = [item1, item2].sort().join(' + ');
+  return predefinedCombinations.get(combination);
+}
+
 async function craftItems() {
   if (!selectedItems[0] || !selectedItems[1]) {
     resultEl.textContent = 'Select two items to craft!';
     return;
   }
 
-  const combination = [selectedItems[0], selectedItems[1]].sort().join(' + ');
+  const [item1, item2] = selectedItems;
   
-  // Check if we already know this combination
-  if (discoveredCombinations.has(combination)) {
-    const result = discoveredCombinations.get(combination);
+  // Check if we already discovered this combination
+  const sortedCombo = [item1, item2].sort().join(' + ');
+  if (discoveredCombinations.has(sortedCombo)) {
+    const result = discoveredCombinations.get(sortedCombo);
     handleCraftingResult(result, false);
     return;
   }
 
-  // Check predefined combinations
-  if (predefinedCombinations.has(combination)) {
-    const result = predefinedCombinations.get(combination);
-    discoveredCombinations.set(combination, result);
+  // Get result from combination system
+  const result = getCombinationResult(item1, item2);
+  
+  if (result) {
+    discoveredCombinations.set(sortedCombo, result);
     
     // Record first discovery
     if (!firstDiscoveries.has(result)) {
       firstDiscoveries.set(result, {
-        ingredients: combination,
+        ingredients: sortedCombo,
         timestamp: new Date().toISOString()
       });
     }
