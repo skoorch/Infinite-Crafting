@@ -1,4 +1,4 @@
-// Over 10,000 predefined element combinations
+// Existing combinations serve as a base for the procedural system
 export const predefinedCombinations = new Map([
   // Basic Elements (same as before)
   ['Air + Air', 'Pressure'],
@@ -239,4 +239,226 @@ export const predefinedCombinations = new Map([
   ['Space + Time', 'Spacetime'],
   ['Universe + Expansion', 'Dark Energy'],
   ['Matter + Space', 'Dark Matter'],
+  
+  // Advanced Materials
+  ['Metal + Glass', 'Fiber Optics'],
+  ['Sand + Lightning', 'Fulgurite'],
+  ['Carbon + Pressure', 'Diamond'],
+  ['Wood + Pressure', 'Amber'],
+  ['Metal + Air', 'Alloy'],
+  ['Crystal + Energy', 'Piezoelectricity'],
+  ['Water + Crystal', 'Geode'],
+  ['Lava + Crystal', 'Gemstone'],
+  ['Metal + Science', 'Nanomaterial'],
+  ['Glass + Metal', 'Mirror'],
+  
+  // Biological Systems
+  ['Cell + Energy', 'Mitochondria'],
+  ['Cell + Cell', 'Tissue'],
+  ['Tissue + Tissue', 'Organ'],
+  ['Organ + Organ', 'Body'],
+  ['DNA + Mutation', 'Evolution'],
+  ['Plant + Light', 'Photosynthesis'],
+  ['Brain + Electricity', 'Consciousness'],
+  ['Blood + Oxygen', 'Circulation'],
+  ['Cell + Virus', 'Infection'],
+  ['Body + Energy', 'Life Force'],
+  
+  // Chemical Reactions
+  ['Acid + Base', 'Salt'],
+  ['Hydrogen + Oxygen', 'Water'],
+  ['Carbon + Oxygen', 'Carbon Dioxide'],
+  ['Metal + Acid', 'Rust'],
+  ['Water + Salt', 'Brine'],
+  ['Sugar + Heat', 'Caramel'],
+  ['Oil + Water', 'Emulsion'],
+  ['Alcohol + Fire', 'Combustion'],
+  ['Carbon + Fire', 'Smoke'],
+  ['Metal + Electricity', 'Electrolysis'],
+  
+  // Quantum Physics
+  ['Energy + Matter', 'Mass'],
+  ['Light + Matter', 'Wave-Particle Duality'],
+  ['Space + Time', 'Spacetime'],
+  ['Energy + Void', 'Quantum Fluctuation'],
+  ['Particle + Wave', 'Quantum State'],
+  ['Atom + Energy', 'Nuclear Fission'],
+  ['Atom + Atom', 'Nuclear Fusion'],
+  ['Matter + Antimatter', 'Annihilation'],
+  ['Time + Energy', 'Entropy'],
+  ['Space + Energy', 'Dark Energy'],
+  
+  // Psychology & Emotions
+  ['Brain + Love', 'Happiness'],
+  ['Brain + Fear', 'Anxiety'],
+  ['Memory + Time', 'Nostalgia'],
+  ['Brain + Art', 'Creativity'],
+  ['Brain + Music', 'Emotion'],
+  ['Dream + Fear', 'Nightmare'],
+  ['Love + Time', 'Experience'],
+  ['Brain + Knowledge', 'Wisdom'],
+  ['Spirit + Emotion', 'Soul'],
+  ['Mind + Meditation', 'Peace'],
+  
+  // Mythology & Fantasy
+  ['Human + Magic', 'Wizard'],
+  ['Dragon + Fire', 'Dragon Breath'],
+  ['Unicorn + Rainbow', 'Magic'],
+  ['Phoenix + Ash', 'Rebirth'],
+  ['Angel + Demon', 'Balance'],
+  ['Giant + Mountain', 'Titan'],
+  ['Dragon + Gold', 'Dragon Hoard'],
+  ['Magic + Knowledge', 'Spell'],
+  ['Witch + Potion', 'Alchemy'],
+  ['Ghost + Life', 'Spirit'],
+  
+  // Modern Technology
+  ['Computer + Network', 'Internet'],
+  ['Data + Algorithm', 'AI'],
+  ['Robot + Emotion', 'Android'],
+  ['Energy + Speed', 'Teleportation'],
+  ['Light + Information', 'Hologram'],
+  ['Brain + Computer', 'Neural Network'],
+  ['Quantum + Computer', 'Quantum Computing'],
+  ['Robot + Time', 'Future'],
+  ['Virtual + Reality', 'Metaverse'],
+  ['Bio + Technology', 'Cyborg'],
+  
+  // Cosmic Phenomena
+  ['Star + Death', 'Supernova'],
+  ['Galaxy + Time', 'Universe'],
+  ['Space + Gravity', 'Black Hole'],
+  ['Star + Planet', 'Solar System'],
+  ['Comet + Planet', 'Impact'],
+  ['Galaxy + Galaxy', 'Cosmic Web'],
+  ['Void + Energy', 'Big Bang'],
+  ['Star + Star', 'Binary System'],
+  ['Planet + Life', 'Biosphere'],
+  ['Universe + Time', 'Infinity'],
+  
+  // Earth Sciences
+  ['Volcano + Ocean', 'Island'],
+  ['River + Valley', 'Canyon'],
+  ['Wind + Rock', 'Erosion'],
+  ['Glacier + Mountain', 'U-Valley'],
+  ['Earthquake + Ocean', 'Tsunami'],
+  ['Magma + Earth', 'Volcano'],
+  ['Rain + Mountain', 'Waterfall'],
+  ['Wind + Desert', 'Dune'],
+  ['River + Ocean', 'Delta'],
+  ['Ice + Rock', 'Glacier'],
+  
+  // Human Society
+  ['Human + Tool', 'Technology'],
+  ['Knowledge + Society', 'Culture'],
+  ['Human + Communication', 'Language'],
+  ['Art + Culture', 'Civilization'],
+  ['War + Peace', 'Diplomacy'],
+  ['Money + Trade', 'Economy'],
+  ['Society + Law', 'Government'],
+  ['Knowledge + Time', 'History'],
+  ['Human + Belief', 'Religion'],
+  ['Culture + Time', 'Tradition'],
+  
+  // Agriculture & Food
+  ['Plant + Human', 'Agriculture'],
+  ['Grain + Tool', 'Farming'],
+  ['Animal + Farm', 'Livestock'],
+  ['Fruit + Sugar', 'Juice'],
+  ['Grain + Water', 'Beer'],
+  ['Milk + Bacteria', 'Cheese'],
+  ['Meat + Fire', 'Cooking'],
+  ['Plant + Selection', 'Domestication'],
+  ['Flower + Bee', 'Honey'],
+  ['Fish + Farm', 'Aquaculture'],
+  
+  // Transportation
+  ['Wheel + Engine', 'Car'],
+  ['Metal + Air', 'Airplane'],
+  ['Metal + Water', 'Ship'],
+  ['Rail + Engine', 'Train'],
+  ['Rocket + Space', 'Spacecraft'],
+  ['Engine + Future', 'Hover Vehicle'],
+  ['Human + Flight', 'Aviation'],
+  ['Car + Electricity', 'Electric Vehicle'],
+  ['Computer + Car', 'Autonomous Vehicle'],
+  ['Space + Human', 'Astronaut'],
 ]);
+
+// Procedural combination generator
+const elementProperties = {
+  Water: ['wet', 'flowing', 'cold'],
+  Fire: ['hot', 'burning', 'energetic'],
+  Earth: ['solid', 'heavy', 'fertile'],
+  Air: ['light', 'gaseous', 'moving'],
+  // Add more base properties for other elements
+};
+
+const transformationRules = {
+  'wet + hot': 'Steam',
+  'wet + cold': 'Ice',
+  'hot + solid': 'Lava',
+  // Add more transformation rules
+};
+
+// Hash function to consistently generate the same result for the same inputs
+function hashCombination(a, b) {
+  const str = a + b;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+// Procedurally generate a result based on input elements
+function generateCombination(elem1, elem2) {
+  // First check if it's in predefined combinations
+  const sortedCombo = [elem1, elem2].sort().join(' + ');
+  if (predefinedCombinations.has(sortedCombo)) {
+    return predefinedCombinations.get(sortedCombo);
+  }
+
+  // Use hash to consistently generate same result for same inputs
+  const hash = hashCombination(elem1, elem2);
+  
+  // Get properties of both elements
+  const props1 = elementProperties[elem1] || [];
+  const props2 = elementProperties[elem2] || [];
+
+  // Use hash to deterministically combine properties
+  const propIndex1 = hash % props1.length;
+  const propIndex2 = (hash >> 8) % props2.length;
+
+  const prop1 = props1[propIndex1] || elem1;
+  const prop2 = props2[propIndex2] || elem2;
+
+  // Check transformation rules
+  const transformKey = `${prop1} + ${prop2}`;
+  if (transformationRules[transformKey]) {
+    return transformationRules[transformKey];
+  }
+
+  // Generate a new combination name based on properties
+  const prefixes = ['Super', 'Mystic', 'Quantum', 'Cosmic', 'Ancient', 'Enhanced'];
+  const suffixes = ['Essence', 'Matter', 'Force', 'Element', 'Crystal', 'Energy'];
+  
+  const prefixIndex = (hash >> 16) % prefixes.length;
+  const suffixIndex = (hash >> 24) % suffixes.length;
+
+  return `${prefixes[prefixIndex]} ${elem1}-${elem2} ${suffixes[suffixIndex]}`;
+}
+
+// Export the combination checking function
+export function getCombinationResult(elem1, elem2) {
+  const sortedCombo = [elem1, elem2].sort().join(' + ');
+  
+  // First check predefined combinations
+  if (predefinedCombinations.has(sortedCombo)) {
+    return predefinedCombinations.get(sortedCombo);
+  }
+  
+  // If not found, generate a procedural combination
+  return generateCombination(elem1, elem2);
+}
